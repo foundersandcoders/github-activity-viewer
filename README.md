@@ -13,7 +13,7 @@ Perhaps in the classroom as a collaborative starter project for meetup participa
 
 Possible tasks:
 - create a personal access token to view the results;
-- add your username to `users'js` via a PR;
+- add your username to `users.js` via a PR;
 - Create new folders with your own version of the index page, js and css;
 - Play with chart.js to create alternative views of the data.
 
