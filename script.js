@@ -4,7 +4,15 @@ let token = localStorage.getItem('accessToken');
 let users = userData.users; // Have it from users.js
 let fromDate = userData.from;
 
+window.onload = function() {
+    let formattedFromDate = new Date(fromDate).toLocaleDateString();
+    const dateElement = document.getElementById('since');
+    dateElement.textContent = 'Since: ' + formattedFromDate;
+}
+
 const url = `https://api.github.com/graphql`;
+
+
 
 if (token !== null) {
     fetchAndDisplayUsersInfo();
@@ -30,7 +38,7 @@ function fetchAndDisplayUsersInfo() {
     let tbody = document.createElement('tbody');
     let headerRow = document.createElement('tr');
 
-    ['Username', 'Total Contributions'].forEach(text => {
+    ['Username', 'Contributions'].forEach(text => {
         let th = document.createElement('th');
         th.textContent = text;
         headerRow.appendChild(th);
@@ -111,7 +119,7 @@ function createChart(users, contributionsData) {
         data: {
             labels: users,
             datasets: [{
-                label: 'Total Contributions',
+                label: 'Contributions',
                 data: contributionsData,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
