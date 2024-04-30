@@ -1,1 +1,26 @@
-hi
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Activity Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h2>GitHub Activity Viewer</h2>
+
+<div id="tokenSection">
+    <input id="tokenInput" type="text" placeholder="Enter your token">
+    <button onclick="storeToken()">Save Token</button>
+</div>
+
+<div id="contentArea"></div>
+<div id="chartArea">
+    <canvas id="usersChart"></canvas>
+</div>
+
+<script src="users.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
