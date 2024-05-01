@@ -1,4 +1,4 @@
 #chartArea {
-    height: 400px;
-    width: 600px;
+    height: 85vh; /* 100% of viewport height */
+    width: 100vw; /* 100% of viewport width */
 }

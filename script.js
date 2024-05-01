@@ -1,37 +1,98 @@
-const contentArea = document.getElementById('contentArea');
-const tokenSection = document.getElementById('tokenSection');
-let token = localStorage.getItem('accessToken');
-let users = userData.users; // Have it from users.js
-let fromDate = userData.from;
+// elements
+const leadSection = document.getElementById('leadSection');
+const chartArea = document.getElementById('chartArea');
+const tableArea = document.getElementById('tableArea');
 
-window.onload = function() {
-    let formattedFromDate = new Date(fromDate).toLocaleDateString();
-    const dateElement = document.getElementById('since');
-    dateElement.textContent = 'Since: ' + formattedFromDate;
-}
+
+// state variables
+let currentState = 'tokenCheck'; // or 'userSelection'
+let token = localStorage.getItem('accessToken');
+
+// specify the user files
+let userFiles = ["users", "fac31"]; // update with your real file names
 
 const url = `https://api.github.com/graphql`;
 
 
+// function to update the page based on the current state
+function updatePage() {
+    switch(currentState) {
 
-if (token !== null) {
-    fetchAndDisplayUsersInfo();
-    tokenSection.style.display = 'none';
+        case 'tokenCheck':
+            if (token !== null) {
+                leadSection.innerHTML = '';
+                currentState = 'userSelection';
+                updatePage();
+            } else {
+                leadSection.style.display = 'block';
+            }
+            break;
+
+        case 'userSelection':
+            let selectElement = document.createElement("select");
+            selectElement.id = "userFile";
+        
+            //add the empty option here
+            let defaultOption = document.createElement("option");
+            defaultOption.value = "";
+            defaultOption.text = "Select group..."; 
+            selectElement.appendChild(defaultOption);
+        
+            //use forEach to populate the drop-down
+            userFiles.forEach((file) => {
+                let option = document.createElement("option");
+                option.value = file;
+                option.text = file; 
+                selectElement.appendChild(option); 
+            });
+        
+            selectElement.onchange = function() {
+                const selectedFile = this.value;
+                if(selectedFile) { //check if value is not empty
+                    updateContent(selectedFile);
+                }
+            }
+            leadSection.appendChild(selectElement);
+
+            break;
+    }
 }
 
 function storeToken() {
     token = document.getElementById('tokenInput').value;
     if (token === "") {
-        alert("Please enter a valid token");
+        alert("Please enter a valid Github personal access token");
     } else {
         localStorage.setItem('accessToken', token);
-        tokenSection.style.display = 'none';
-        fetchAndDisplayUsersInfo();
+        currentState = 'userSelection';
+        updatePage();
     }
 }
 
-function fetchAndDisplayUsersInfo() {
-    contentArea.innerHTML = "";
+// display the user data based on selection
+function updateContent(file) {
+    fetch(file + '.json') // assuming your file has a .json extension
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(userData => {
+        let users = userData.users;
+        let fromDate = userData.from;
+        let formattedFromDate = new Date(fromDate).toLocaleDateString();
+        const dateElement = document.getElementById('since');
+        leadSection.innerHTML = `Since: ${formattedFromDate}`;
+        fetchAndDisplayUsersInfo(users, fromDate);
+    })
+    .catch(e => {
+        console.log('There was a problem with the fetch operation: ' + e.message);
+    });
+}
+
+
+function fetchAndDisplayUsersInfo(users, fromDate) {
 
     let table = document.createElement('table');
     let thead = document.createElement('thead');
@@ -48,7 +109,7 @@ function fetchAndDisplayUsersInfo() {
     table.appendChild(thead);
     table.appendChild(tbody);
 
-    contentArea.appendChild(table);
+    tableArea.appendChild(table);
 
     Promise.all(users.map(username => fetchUserInformation(token, username, fromDate, tbody)))
         .then(contributionsData => {
@@ -104,10 +165,10 @@ function fetchUserInformation(token, username, fromDate, tbody) {
         console.error(error);
         if(error.message === "Bad credentials") {
             localStorage.removeItem('accessToken');
-            tokenSection.style.display = 'block';
-            contentArea.textContent = "Token is incorrect or expired. Please enter it again.";
+            leadSection.style.display = 'block';
+            leadSection.textContent = "Token is incorrect or expired. Please enter it again.";
         } else {
-            contentArea.textContent = "Error: " + error.message;
+            leadSection.textContent = "Error: " + error.message;
         }
     });
 }
@@ -148,4 +209,8 @@ function createChart(users, contributionsData) {
             }
         }
     });
+}
+
+window.onload = function() {
+    updatePage();
 }
